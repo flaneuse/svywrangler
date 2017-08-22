@@ -6,7 +6,7 @@ NULL
 #' @describeIn  getDHScodes Function to pull the DHS codes for country names.
 #' Can take either a single country or multiple ones; also can return entire table or just the country code
 #' Matching is *exact* matching; input name must exactly match a country name within the DHS dataset.
-#' @import dplyr rvest
+#' @import dplyr rvest xml2
 #' @export
 #'
 #' @param country_names string or list of strings of country names
@@ -55,7 +55,7 @@ getDHScountry = function(country_names, return_table = FALSE){
   }
 }
 
-#' @import dplyr rvest
+#' @import dplyr rvest xml2
 importDHScountries = function(save_file = FALSE,
                               file_name = '~/GitHub/llamar/data/DHScountries.rda') {
   dhs_country = read_html('http://dhsprogram.com/data/File-Types-and-Names.cfm#CP_JUMP_10136')
