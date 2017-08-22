@@ -3,6 +3,7 @@
 export(getDHScountry)
 export(importDHScountries)
 export(loadDHS)
+export(getDHSindicator)
 import(RJSONIO)
 import(data.table)
 import(dplyr)
