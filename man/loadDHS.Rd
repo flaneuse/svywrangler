@@ -11,13 +11,13 @@ loadDHS(breakdown = "national", indicators, countries,
 \arguments{
 \item{breakdown}{one of 'national', 'subnational', 'background', or 'all'}
 
-\item{indicators:}{list of DHS indicator codes as a string separated by commas *NO SPACES between*, e.g. 'CN_NUTS_C_WH2,CN_NUTS_C_HA2,ED_EDUC_W_SEP'}
+\item{indicators:}{either a list of indicators to search for, or a string of DHS indicator codes separated by commas *NO SPACES between*, e.g. 'CN_NUTS_C_WH2,CN_NUTS_C_HA2,ED_EDUC_W_SEP'}
 
 \item{countries:}{list of DHS country names as a string separated by commas with *NO SPACES between*, e.g. 'SN,SL,TG'}
 
-\item{years:}{list of survey years to include as a string separated by commas, e.g. '2010,2012,2014'}
+\item{years:}{list of survey years to include as a string separated by commas, e.g. '2010,2012,2014'. By default, will return all available years.}
 
-\item{apiKey:}{API Key to include, to be able to obtain 5000 records instead of 1000.}
+\item{apiKey:}{API Key to include, to be able to obtain 5000 records instead of 1000 at a time.}
 
 \item{numResults:}{number of records to include}
 }
@@ -32,7 +32,9 @@ Country codes: \link{http://dhsprogram.com/data/File-Types-and-Names.cfm#CP_JUMP
 Indicator codes: \link{http://api.dhsprogram.com/rest/dhs/indicators?returnFields=IndicatorId,Label,Definition&f=html}
 }
 \examples{
-rw_stunting = loadDHS(breakdown = 'national', indicators = 'CN_NUTS_C_HA2', countries = 'RW')
+rw_stunting = loadDHS(breakdown = 'national', indicators = 'CN_NUTS_C_HA2,CN_NUTS_C_HA3', countries = 'RW', years = '2010,2015')
+rw_stunting = loadDHS(breakdown = 'subnational', indicators = 'stunted', countries = 'Rwanda')
+malnutrition = loadDHS(breakdown = 'all', indicators = c('stunted', 'wasted', 'underweight'), countries = c('Rwanda', 'Burundi', 'Congo'))
 }
 \author{
 Laura Hughes
