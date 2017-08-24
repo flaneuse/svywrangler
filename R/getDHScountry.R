@@ -52,7 +52,7 @@ getDHScountry = function(country_names, return_table = FALSE){
   } else{
     warning(paste("No countries found. Country names include:",
                   DHSctry %>% pull(country) %>% paste(., collapse = ', ')))
-    return(NA)
+    return(NULL)
   }
 }
 
