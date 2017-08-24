@@ -4,9 +4,15 @@
 #'
 #' Information is the same as from the DHS StatCompiler
 #' Documentation code for DHS API: \url{http://api.dhsprogram.com/#/index.html}
+#'
 #' Filter options: \url{http://api.dhsprogram.com/#/api-data.cfm}
-#' Country codes: \link{http://dhsprogram.com/data/File-Types-and-Names.cfm#CP_JUMP_10136}
-#' Indicator codes: \link{http://api.dhsprogram.com/rest/dhs/indicators?returnFields=IndicatorId,Label,Definition&f=html}
+#'
+#' Country codes: \url{http://dhsprogram.com/data/File-Types-and-Names.cfm#CP_JUMP_10136}
+#'
+#' Indicator codes: \url{http://api.dhsprogram.com/rest/dhs/indicators?returnFields=IndicatorId,Label,Definition&f=html}
+#'
+#' Return value definitions: \url{http://api.dhsprogram.com/rest/dhs/data/fields}
+#'
 #' @param breakdown one of 'national', 'subnational', 'background', or 'all'. See \url{http://api.dhsprogram.com/#/api-data.cfm} for description
 #' @param indicators: either a list of indicator names/codes to search for, or a string of DHS indicator names/codes separated by commas, e.g. c('wasted', 'stunted', 'underweight') or CN_NUTS_C_WH2,CN_NUTS_C_HA2,CN_NUTS_C_WA2'
 #' @param countries: either a list of DHS country names or codes, or a string of country names/codes separated by commas, e.g. 'SN,SL,TG'
@@ -15,7 +21,10 @@
 #' @param years: if specified, list of survey years to include as a string separated by commas, e.g. '2010,2012,2014'. Overrides \code{start_year} and \code{end_year}; allows you to exclude years from analysis
 #' @param apiKey: API Key to include, to be able to obtain 5000 records instead of 1000 at a time.
 #' @param numResults: number of records to include
+#' @param return_gunk: TRUE/FALSE whether to return everything, or just the useful fields
 #' @param return_params: TRUE/FALSE whether to return the search parameters with the data
+#'
+#' @return See \url{http://api.dhsprogram.com/rest/dhs/data/fields} for descriptions of the outputs. The default option (\code{return_gunk = FALSE}) returns only CountryName, DHS_CountryCode, SurveyYear, SurveyYearLabel, IndicatorId, Indicator, Definition, MeasurementType, Denominator, DenominatorWeighted, DenominatorUnweighted, Value, Percent, CILow, CIHigh, CharacteristicCategory, CharacteristicLabel, IsTotal
 #'
 #' @author Laura Hughes
 #'
@@ -35,6 +44,7 @@ loadDHS = function(breakdown = "national",
                    end_year = as.numeric(format(Sys.Date(), "%Y")),
                    years = NA,
                    apiKey = NA, numResults = 1000,
+                   return_gunk = FALSE,
                    return_params = FALSE) {
 
 
@@ -91,41 +101,58 @@ loadDHS = function(breakdown = "national",
     years = str_replace_all(years, ", ", ",")
   }
 
-# define the query
-query = paste0("http://api.dhsprogram.com/rest/dhs/data?breakdown=",
-               breakdown, "&indicatorIds=", indicators, "&countryIds=", countries, "&SurveyYear=",
-               years, "&apiKey=", apiKey, "&perpage=", numResults)
+  # define the query
+  query = paste0("http://api.dhsprogram.com/rest/dhs/data?breakdown=",
+                 breakdown, "&indicatorIds=", indicators, "&countryIds=", countries, "&SurveyYear=",
+                 years, "&apiKey=", apiKey, "&perpage=", numResults)
 
-json_file = fromJSON(query)
+  json_file = fromJSON(query)
 
-# Unlist the JSON file entries
-json_data = lapply(json_file$Data, function(x) {
-  unlist(x)
-})
+  # Unlist the JSON file entries
+  json_data = lapply(json_file$Data, function(x) {
+    unlist(x)
+  })
 
-# Convert JSON input to a data frame
-df = as.data.frame(do.call("rbind", json_data), stringsAsFactors = FALSE)
+  # Convert JSON input to a data frame
+  df = as.data.frame(do.call("rbind", json_data), stringsAsFactors = FALSE)
 
 
-# Throw a warning if number of returned results > numResults
-if (json_file$RecordCount > numResults) {
-  warning(paste0("query results in ", json_file$RecordCount, " hits; first ", numResults,
-                 " returned"))
-}
+  # Throw a warning if number of returned results > numResults
+  if (json_file$RecordCount > numResults) {
+    warning(paste0("query results in ", json_file$RecordCount, " hits; first ", numResults,
+                   " returned"))
+  }
 
-# Check that everything are numbers.  grepl('^[[:digit:]]',y$Indicator)
+  # Check that everything are numbers.  grepl('^[[:digit:]]',y$Indicator)
 
-# Check that it returns a value.
-if (length(df) > 0) {
-  # Convert values to numbers.
-  df = df %>% mutate_at(.funs = as.numeric, .vars = vars(Value, Precision, SurveyYear, IsTotal,
-                                                         CILow, CIHigh, DenominatorUnweighted, DenominatorWeighted))
-}
+  # Check that it returns a value.
+  if (length(df) > 0) {
+    # Convert values to numbers.
+    df = df %>%
+      mutate_at(.funs = as.numeric, .vars = vars(Value, Precision, SurveyYear, IsTotal,
+                                                 CILow, CIHigh, DenominatorUnweighted, DenominatorWeighted))
 
-if(return_params == TRUE) {
-  return(list(data = df, indicators = indicators, countries = countries, breakdown = breakdown))
+    # Convert percents to percents
+    df = df %>%
+      left_join(DHSindic %>% select(IndicatorId, MeasurementType, Definition, Denominator), by = 'IndicatorId') %>%
+      mutate(Percent = ifelse(MeasurementType == "Percent", Value/100, NA))
+  }
 
-} else {
-  return(df)
-}
+  # Reorder into a more logical order
+  if(return_gunk == FALSE){
+    df = df %>%
+      select(CountryName, DHS_CountryCode, SurveyYear, SurveyYearLabel,
+             IndicatorId, Indicator, Definition, MeasurementType,
+             Denominator, DenominatorWeighted, DenominatorUnweighted,
+             Value, Percent, CILow, CIHigh,
+             CharacteristicCategory, CharacteristicLabel, IsTotal
+             )
+  }
+
+  if(return_params == TRUE) {
+    return(list(data = df, indicators = indicators, countries = countries, breakdown = breakdown))
+
+  } else {
+    return(df)
+  }
 }
