@@ -28,8 +28,11 @@
 loadDHS = function(breakdown = "national",
                    indicators,
                    countries,
-                   years = paste0(seq(1984,
-                                      as.numeric(format(Sys.Date(), "%Y"))), collapse = ","), apiKey = NA, numResults = 1000) {
+                   start_year = 1984,
+                   end_year = as.numeric(format(Sys.Date(), "%Y")),
+                   years = NA,
+                   apiKey = NA, numResults = 1000,
+                   return_params = FALSE) {
   if(length(countries) > 1) {
     countries = getDHScountry(countries)
   }
@@ -66,12 +69,14 @@ loadDHS = function(breakdown = "national",
   # Check that it returns a value.
   if (length(df) > 0) {
     # Convert values to numbers.
-    df = df %>% mutate(Value = as.numeric(Value),
-                              Precision = as.numeric(Precision),
-                              SurveyYear = as.numeric(SurveyYear),
-                              IsTotal = as.numeric(IsTotal),
-                              CILow = as.numeric(CILow),
-                              CIHigh = as.numeric(CIHigh))
+    df = df %>% mutate_at(.funs = as.numeric, .vars = vars(Value, Precision, SurveyYear, IsTotal,
+                                                           CILow, CIHigh, DenominatorUnweighted, DenominatorWeighted))
   }
-  return(df)
+
+  if(return_params == TRUE) {
+    return(list(data = df, indicators = indicators, countries = countries, breakdown = breakdown))
+
+  } else {
+    return(df)
+  }
 }
