@@ -58,7 +58,7 @@ getDHScountry = function(country_names, return_table = FALSE){
 
 #' @import dplyr rvest xml2
 importDHScountries = function(save_file = FALSE,
-                              file_name = '~/GitHub/llamar/data/DHScountries.rda') {
+                              file_name = 'data/DHScountries.rda') {
   dhs_country = read_html('http://dhsprogram.com/data/File-Types-and-Names.cfm#CP_JUMP_10136')
 
   codes = dhs_country %>%
@@ -101,7 +101,7 @@ importDHScountries = function(save_file = FALSE,
 
 #' @import dplyr RJSONIO
 importDHSindicators = function(save_file = FALSE,
-                               file_name = '~/GitHub/llamar/data/DHSindicators.rda'){
+                               file_name = 'data/DHSindicators.rda'){
 
   indic = fromJSON('http://api.dhsprogram.com/rest/dhs/indicators')
 
@@ -112,12 +112,15 @@ importDHSindicators = function(save_file = FALSE,
 
   DHSind = as.data.frame(do.call("rbind", indic), stringsAsFactors = FALSE)
 
+  # convert from factors to characters
+  DHSindic = DHSind %>% mutate_if(is.factor, as.character)
+
 
   if(save_file == TRUE){
-    save(DHSind, file = file_name)
+    save(DHSindic, file = file_name)
   }
 
-  return(DHSind)
+  return(DHSindic)
 }
 
 #' @describeIn  getDHScodes Function to lookup the DHS indicator codes. Partially matches to input indicator; user can select which indicator(s) they want
