@@ -4,37 +4,43 @@
 \alias{loadDHS}
 \title{Access Demographic & Health Surveys Data}
 \usage{
-loadDHS(breakdown = "national", indicators, countries,
-  years = paste0(seq(1984, as.numeric(format(Sys.Date(), "\%Y"))), collapse =
-  ","), apiKey = NA, numResults = 1000)
+loadDHS(breakdown = "national", indicators, countries, start_year = 1984,
+  end_year = as.numeric(format(Sys.Date(), "\%Y")), years = NA,
+  apiKey = NA, numResults = 1000, return_params = FALSE)
 }
 \arguments{
-\item{breakdown}{one of 'national', 'subnational', 'background', or 'all'}
+\item{breakdown}{one of 'national', 'subnational', 'background', or 'all'. See \url{http://api.dhsprogram.com/#/api-data.cfm} for description}
 
-\item{indicators:}{either a list of indicators to search for, or a string of DHS indicator codes separated by commas *NO SPACES between*, e.g. 'CN_NUTS_C_WH2,CN_NUTS_C_HA2,ED_EDUC_W_SEP'}
+\item{indicators:}{either a list of indicator names/codes to search for, or a string of DHS indicator names/codes separated by commas, e.g. c('wasted', 'stunted', 'underweight') or CN_NUTS_C_WH2,CN_NUTS_C_HA2,CN_NUTS_C_WA2'}
 
-\item{countries:}{list of DHS country names as a string separated by commas with *NO SPACES between*, e.g. 'SN,SL,TG'}
+\item{countries:}{either a list of DHS country names or codes, or a string of country names/codes separated by commas, e.g. 'SN,SL,TG'}
 
-\item{years:}{list of survey years to include as a string separated by commas, e.g. '2010,2012,2014'. By default, will return all available years.}
+\item{start_year:}{first survey year to include. By default, will return everything from first year (1984) of survey to \code{end_year}.}
+
+\item{end_year:}{last survey year to include. By default, will return everything from 'start_year' to present.}
+
+\item{years:}{if specified, list of survey years to include as a string separated by commas, e.g. '2010,2012,2014'. Overrides start_year and end_year; allows you to exclude years from analysis}
 
 \item{apiKey:}{API Key to include, to be able to obtain 5000 records instead of 1000 at a time.}
 
 \item{numResults:}{number of records to include}
+
+\item{return_params:}{TRUE/FALSE whether to return the search parameters with the data}
 }
 \description{
 Accesses information from the Demographic and Health Surveys, via their API.
 }
 \details{
 Information is the same as from the DHS StatCompiler
-Documentation code for DHS API: \link{http://api.dhsprogram.com/#/index.html}
-Filter options: \link{http://api.dhsprogram.com/#/api-data.cfm}
+Documentation code for DHS API: \url{http://api.dhsprogram.com/#/index.html}
+Filter options: \url{http://api.dhsprogram.com/#/api-data.cfm}
 Country codes: \link{http://dhsprogram.com/data/File-Types-and-Names.cfm#CP_JUMP_10136}
 Indicator codes: \link{http://api.dhsprogram.com/rest/dhs/indicators?returnFields=IndicatorId,Label,Definition&f=html}
 }
 \examples{
-rw_stunting = loadDHS(breakdown = 'national', indicators = 'CN_NUTS_C_HA2,CN_NUTS_C_HA3', countries = 'RW', years = '2010,2015')
-rw_stunting = loadDHS(breakdown = 'subnational', indicators = 'stunted', countries = 'Rwanda')
-malnutrition = loadDHS(breakdown = 'all', indicators = c('stunted', 'wasted', 'underweight'), countries = c('Rwanda', 'Burundi', 'Congo'))
+rw_stunting = loadDHS(breakdown = 'all', indicators = 'CN_NUTS_C_HA2,CN_NUTS_C_HA3', countries = 'RW', years = '2010,2015')
+rw_stunting = loadDHS(breakdown = 'subnational', indicators = 'stunted', countries = 'Rwanda', start_year = 2005, end_year = 2015)
+malnutrition = loadDHS(breakdown = 'national', indicators = c('stunted', 'wasted', 'underweight'), countries = c('Rwanda', 'Burundi', 'Niger'))
 }
 \author{
 Laura Hughes
