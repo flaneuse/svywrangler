@@ -50,6 +50,7 @@ Return value definitions: \url{http://api.dhsprogram.com/rest/dhs/data/fields}
 }
 \examples{
 rw_stunting = loadDHS(breakdown = 'all', indicators = 'CN_NUTS_C_HA2,CN_NUTS_C_HA3', countries = 'RW', years = '2000,2015')
+glimpse(rw_stunting)
 rw_stunting = loadDHS(breakdown = 'subnational', indicators = 'stunted', countries = 'Rwanda', start_year = 2005, end_year = 2015)
 malnutrition = loadDHS(breakdown = 'national', indicators = c('stunted', 'wasted', 'underweight'), countries = c('Rwanda', 'Burundi', 'Niger'), return_params = TRUE)
 }
