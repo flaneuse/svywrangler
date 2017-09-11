@@ -11,6 +11,7 @@ Imports:
   RJSONIO,
   data.table,
   rvest,
+  survey,
   xml2
 Remotes: 
   flaneuse/llamar
