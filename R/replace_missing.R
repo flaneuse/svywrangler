@@ -1,6 +1,7 @@
 x = kids %>% select(hh_num, stunting, kid_hemoglobin) %>% sample_frac(0.1)
 
-
+#' Replace multiple missing codes with NAs over any number of variables 
+#' 
 replace_missing = function(df, missing_codes,  ...) {
   
   # more generic version of Hadley's na_if which can take in list of codes rather than single one.
@@ -13,7 +14,6 @@ replace_missing = function(df, missing_codes,  ...) {
     var = quos(...)
                        
     df %>% mutate_at(funs(na.if(., missing_codes)), .vars = var)
-  # }
 }
 
 
