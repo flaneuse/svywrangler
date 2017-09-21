@@ -1,8 +1,24 @@
 library(llamar)
 
-calc_idx = function(df, var_name = 'wlth_idx', save_params = FALSE, save_all = FALSE) {
+calc_idx = function(df, var_name = 'wlth_idx', 
+                    center = TRUE, scale = TRUE,
+                    save_params = FALSE, save_all = FALSE) {
+  
+  # Check that everything has *some* variation
+  
+  std = df %>% summarise_all(funs(sd(.))) %>% t() %>% data.frame() 
+  colnames(std) = 'sd'
+  
+  no_var = std %>% mutate(var = row.names(std)) %>% filter(sd == 0)
+  
+  if (nrow(no_var) > 0) {
+    warning(paste('Removing columns:', paste(no_var$var, collapse = ', '), 'due to no variation'))
+    
+    df = df %>% select(-one_of(no_var$var))
+  }
+  
   pca = df %>% 
-    prcomp()
+    prcomp(center = center, scale = scale)
   
   
   # calculate variance explained:
