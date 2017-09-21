@@ -13,11 +13,18 @@
 #'
 # @import dplyr
 
-factorize = function(df, var, new_var) {
+factorize = function(df, new_var, ...) {
   codebk = pull_labels(df)
 
   # ref_df has labels associated with it.
   # Note: can pipe with magrittr pipe, a la: df %>% factorize(ref_df, var, new_var)
+
+  vars = quos(...)
+
+
+  vars = lapply(vars, function(x) quo_name(x))
+
+  factorize1var = function(df, var, new_var, codebk){
 
   # -- check var is within both df and ref_df --
   if(!var %in% colnames(df)) {
@@ -34,14 +41,21 @@ factorize = function(df, var, new_var) {
   # -- create a factor with the labels from the original dataset --
   # levels will be sorted by the frequency of occurance (high to low)
   df = df %>%
-    mutate_(.dots = setNames(
+    transmute_(.dots = setNames(
       list(paste0('forcats::fct_infreq(
                   factor(', var, ',',
                   'levels = ', list(codebk$codes), ',',
                   'labels = ', list(codebk$labels),'))'
-                  )), new_var
-      ))
+                  )), paste0(var, new_var)
+    ))
 
   return(df)
+
+  }
+
+  new_cols = lapply(vars, function(x) factorize1var(df, x, new_var, codebk)) %>% bind_cols()
+
+  return(df %>% bind_cols(new_cols))
+
 }
 
