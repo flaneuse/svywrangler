@@ -47,7 +47,7 @@ type_of = function(df) {
 # calculates incidence of binary values
 calc_pct = function(df) {
   
-  temp = t(df %>% summarise_if(.predicate = is_binary, .funs = funs(sum(., na.rm = TRUE)/n())))
+  temp = t(df %>% summarise_if(.predicate = is.numeric, .funs = funs(sum(., na.rm = TRUE)/n())))
   
   data.frame(var = row.names(temp), pct = temp) %>% arrange(desc(pct))
 }
