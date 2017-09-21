@@ -23,6 +23,7 @@ calc_idx = function(df, var_name = 'wlth_idx',
   
   # calculate variance explained:
   var_expl = cumsum((pca$sdev)^2) / sum(pca$sdev^2)
+  scree = ((pca$sdev)^2) / sum(pca$sdev^2)
   
   # plot the loadings
   loadings = data.frame(pca$rotation) %>% mutate(var = row.names(pca$rotation))
@@ -52,6 +53,6 @@ calc_idx = function(df, var_name = 'wlth_idx',
   if(save_params == FALSE){
     return(df)
   } else{
-    return(list(data = df, loadings = loadings, variance = var_expl, pca = pca))
+    return(list(data = df, loadings = loadings, variance = var_expl, scree = scree, pca = pca))
   }
 } 
