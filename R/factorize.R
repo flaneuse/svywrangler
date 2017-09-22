@@ -11,7 +11,8 @@
 #' @param var string containing the variable name you want to change to a factor
 #' @param new_var string for the name of the new factor-ized variable you create.
 #'
-# @import dplyr
+#' @import dplyr
+#' @export
 
 factorize = function(df, new_var, ...) {
   codebk = pull_labels(df)

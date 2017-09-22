@@ -1,8 +1,9 @@
+#' @import dplyr forcats
+#' @export
 #' @examples
 #' dummize(mtcars, remove_factors = FALSE, cyl)
 #' dummize(mtcars, remove_factors = TRUE, cyl, gear)
 
-library(forcats)
 dummize = function(df, remove_factors, ...) {
 
   var = quos(...)

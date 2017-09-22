@@ -1,4 +1,5 @@
-  library(llamar)
+#' @import llamar dplyr ggplot2
+#' @export
 
   calc_idx = function(df, var_name = 'wlth_idx',
                       center = TRUE, scale = TRUE,

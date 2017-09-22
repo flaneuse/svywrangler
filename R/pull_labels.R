@@ -1,3 +1,6 @@
+#' @import dplyr
+#' @export
+#'
 pull_labels = function(df) {
   cols = colnames(df)
 
@@ -16,18 +19,18 @@ pull_labels = function(df) {
   lapply(cols, function(x) data.frame(var_name = x, get_labels(df, x)))  %>% bind_rows() %>% select(-`get_labels.df..x.`)
 }
 
-library(stringr)
-library(data.table)
-
+#' @import dplyr stringr data.table
+#' @export
 id_weirdos = function(df, lookfor = c('or more', 'unknown', "don't"), lookfor_codes = c(8, 9, 95:99, 996:999, 9996:9999)) {
   codebk = pull_labels(df)
 
   codebk %>%
     mutate(labels = str_to_lower(labels)) %>%
-    # filter( )
     filter_(paste0(paste(paste0('labels %like% "', lookfor, '"'), collapse = '|'), '| codes %in% c(', paste(lookfor_codes, collapse = ','), ")"))
 }
 
+#' @import dplyr
+#' @export
 id_decimals = function(df) {
   codebk = pull_labels(df)
 
