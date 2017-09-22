@@ -12,7 +12,14 @@ Imports:
   data.table,
   rvest,
   survey,
-  xml2
+  xml2,
+  ggplot2, 
+  broom,
+  forcats,
+  RColorBrewer,
+  multiwayvcov,
+  lmtest,
+  extrafont
 Remotes: 
   flaneuse/llamar
 URL: https://github.com/flaneuse/svywrangler
