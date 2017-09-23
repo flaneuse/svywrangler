@@ -44,6 +44,9 @@ id_type = function(data) {
             )
 }
 
+
+#' @import dplyr
+#' @export
 # isolates continuous variables:
 type_of = function(df) {
 
